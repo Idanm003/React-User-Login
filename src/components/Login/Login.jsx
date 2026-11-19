@@ -13,6 +13,13 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const userBody = {
+      username: username,
+      password: pwd
+    };
+
+    console.log(userBody)//API call here in future
   };
 
   useEffect(() => {

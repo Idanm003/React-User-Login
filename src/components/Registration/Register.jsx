@@ -1,4 +1,5 @@
-import { useRef, useEffect, useState, use } from "react";
+import { useRef, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import classes from "./Register.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,6 +7,7 @@ import {
   faTimes,
   faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
+import { createUser } from "../services/api";
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -28,7 +30,7 @@ function Register() {
   const [errMsg, setErrMsg] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const usernameValueRegex = USER_REGEX.test(username);
@@ -36,6 +38,29 @@ function Register() {
 
     if (!usernameValueRegex || !pwdValueRegex) {
       setErrMsg("Invalid Entry");
+      return;
+    }
+
+    const newUserBody = {
+      username: username,
+      password: pwd,
+    };
+
+    try {
+      await createUser(newUserBody);
+
+      setIsSuccess(true);
+      setUsername("");
+      setPwd("");
+      setConfirmPwd("");
+    } catch (e) {
+      if (!e.response) {
+        setErrMsg("No Server Response");
+      } else if (e.response.status === 409) {
+        setErrMsg("Username Taken");
+      } else {
+        setErrMsg("Registration Failed");
+      }
     }
   };
 
@@ -59,7 +84,9 @@ function Register() {
       {isSuccess ? (
         <section>
           <h1>Success!</h1>
-          <p>Sign In</p>
+          <p>
+            <Link to="/login">Sign In</Link>
+          </p>
         </section>
       ) : (
         <section>
@@ -221,7 +248,7 @@ function Register() {
           </form>
           <p>
             Already registered? <br />
-            Sign in
+            <Link to="/login">Sign in</Link>
           </p>
         </section>
       )}

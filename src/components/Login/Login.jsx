@@ -1,8 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import classes from "./Login.module.css";
+import { authenticate } from "../services/api";
+import AuthContext from "../context/AuthProvider";
 
 function Login() {
   const usernameInputRef = useRef();
+  const errMsgElRef = useRef();
+  const { setAuth } = useContext(AuthContext);
 
   const [username, setUsername] = useState("");
 
@@ -11,15 +16,31 @@ function Login() {
   const [errMsg, setErrMsg] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const userBody = {
       username: username,
-      password: pwd
+      password: pwd,
     };
 
-    console.log(userBody)//API call here in future
+    try {
+      const res = await authenticate(userBody);
+      setAuth(res.data.jwt);
+
+      setIsSuccess(true);
+      setUsername("");
+      setPwd("");
+    } catch (e) {
+      if (!e.response) {
+        setErrMsg("No Server Response");
+      } else if (e.response.status === 403) {
+        setErrMsg(e.response.data || "Login Failed");
+      } else {
+        setErrMsg("Login Failed");
+      }
+      errMsgElRef.current?.focus();
+    }
   };
 
   useEffect(() => {
@@ -32,11 +53,19 @@ function Login() {
         <section>
           <h1>You are logged in!</h1>
           <br />
-          <p>Go to Home!</p>
+          <p>
+            <Link to="/">Go to Home!</Link>
+          </p>
         </section>
       ) : (
         <section>
-          <p className={errMsg ? classes.errmsg : "offscreen"}>{errMsg}</p>
+          <p
+            ref={errMsgElRef}
+            tabIndex={-1}
+            className={errMsg ? classes.errmsg : "offscreen"}
+          >
+            {errMsg}
+          </p>
           <h1>Sign In</h1>
 
           <form onSubmit={handleSubmit}>
@@ -70,7 +99,7 @@ function Login() {
 
           <p>
             Need an Account? <br />
-            Sign Up
+            <Link to="/register">Sign Up</Link>
           </p>
         </section>
       )}

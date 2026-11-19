@@ -13,13 +13,6 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const userBody = {
-      username: username,
-      password: pwd,
-    };
-
-    console.log(userBody);
   };
 
   useEffect(() => {
@@ -40,25 +33,28 @@ function Login() {
           <h1>Sign In</h1>
 
           <form onSubmit={handleSubmit}>
-            <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              ref={usernameInputRef}
-              autoComplete="off"
-              onChange={(e) => setUsername(e.target.value)}
-              value={username}
-              required
-            />
-
-            <label htmlFor="pwd">Password:</label>
-            <input
-              type="password"
-              id="pwd"
-              onChange={(e) => setPwd(e.target.value)}
-              value={pwd}
-              required
-            />
+            <div id="username">
+              <label htmlFor="username">Username:</label>
+              <input
+                type="text"
+                id="username"
+                ref={usernameInputRef}
+                autoComplete="off"
+                onChange={(e) => setUsername(e.target.value)}
+                value={username}
+                required
+              />
+            </div>
+            <div id="password">
+              <label htmlFor="pwd">Password:</label>
+              <input
+                type="password"
+                id="pwd"
+                onChange={(e) => setPwd(e.target.value)}
+                value={pwd}
+                required
+              />
+            </div>
 
             <button type="submit" disabled={!username || !pwd ? true : false}>
               Sign In
